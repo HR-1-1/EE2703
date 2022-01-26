@@ -1,6 +1,6 @@
 # Spice Netlist Part 1
 ## Context
-A spice netlist consists of lines of the following forms:\
+A spice netlist consists of lines of the following forms:
 ```
     ....
     .circuit
