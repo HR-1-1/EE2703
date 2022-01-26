@@ -1,13 +1,13 @@
 # Spice Netlist Part 1
 ## Context
 A spice netlist consists of lines of the following forms:\
-	`....
-	.circuit
-	name n1 n2 value # comment
-	name n1 n2 n3 n4 value # comment
-	name n1 n2 vname value # comment
-	.end
-	....`
+`	....
+    .circuit
+    name n1 n2 value # comment
+    name n1 n2 n3 n4 value # comment
+    name n1 n2 vname value # comment
+    .end
+    ....`
 The circuit definition consists of lines, each of which defines a branch of the circuit.
 ## Assignment
 - Accept the name of netlist file as commandline.
