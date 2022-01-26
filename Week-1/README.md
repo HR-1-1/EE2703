@@ -24,3 +24,5 @@ Clone the repo and execute the following commands in order. [This assumes you're
 - `chmod +x test_suite.sh`
 - `./test_suite.sh spice-part-1.py`
 
+> Wait till the next week to view the soln :)
+
