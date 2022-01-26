@@ -2,7 +2,7 @@
 ## Context
 A spice netlist consists of lines of the following forms:\
 ```
-	....
+    ....
     .circuit
     name n1 n2 value # comment
     name n1 n2 n3 n4 value # comment
