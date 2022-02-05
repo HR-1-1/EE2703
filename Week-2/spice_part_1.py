@@ -23,7 +23,7 @@ def netlist_analyzer(ckt_def):
 	4. A valid netlist file has onyy one circuit definiton
 	5. Allowed Elements : R L C V I E[VCVS] G[VCCS] H[CCVS] F[CCCS] 
 	'''
-	print("Analysis")
+	#print("Analysis")
 
 	# elems is a dictionary of elements and their symbols
 	elems = {"R": "Resistor",
@@ -46,7 +46,15 @@ def netlist_analyzer(ckt_def):
 		print('--'*5)
 	return None
 
-def main():
+def reverser(ckt_def):
+	
+	print("\nReversal\n")
+	for line in reversed([' '.join(reversed(line.split('#')[0].split())) for line in ckt_def]):
+		print(line) 
+		
+	print('*'*10+'\n')
+
+def file_parser():
 	
 	if len(sys.argv) != 2:
 		print('\nUsage: python3 %s <inputfile>' % sys.argv[0])
@@ -69,15 +77,12 @@ def main():
 				print("Invalid circuit definition")
 				sys.exit(0)
 		
-			netlist_analyzer(lines[start+1:end])
-	
-			print("\nReversal\n")
-			for line in reversed([' '.join(reversed(line.split('#')[0].split())) for line in lines[start+1:end]]):
-				print(line) 
-			
-		print('*'*10+'\n')
+			return lines[start+1:end]
+
 	except IOError : # catch incorrect filename error
 		print('Invalid file')
 		sys.exit()
 
-main()
+#ckt_def = file_parser()
+#reverser(ckt_def)
+#netlist_analyzer(ckt_def)
