@@ -8,4 +8,5 @@ fi
 for filename in $PWD/test_suite/*.netlist; do
 	echo "Running test case $filename"
 	python3 $1 $filename
+	echo "-------------------"
 done
