@@ -99,6 +99,7 @@ class inductor:
 					unk[self.n2][1], unk[self.n1][1], unk[self.n2][1])
 
 class ind_current_src:
+
 	def __init__(self, name, n1, n2,mode,val,phase=None):
 		self.name = name
 		self.n1 = n1
@@ -116,6 +117,7 @@ class ind_current_src:
 		mna_ind[unk[self.n2][1]] += self.val
 
 class ind_voltage_src:
+
 	def __init__(self, name, n1, n2, mode, val, phase=None):
 		self.name = name
 		self.n1 = n1
@@ -127,7 +129,6 @@ class ind_voltage_src:
 			self.val = P2R(float(val), float(phase))
 		
 	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
-
 		mna_G[unk[self.n1][1]][unk[self.name][1]] += 1
 		mna_G[unk[self.n2][1]][unk[self.name][1]] += -1
 		mna_G[unk[self.name][1]][unk[self.n1][1]] += 1
@@ -136,6 +137,7 @@ class ind_voltage_src:
 		mna_ind[unk[self.name][1]] += self.val
 
 class vcvs:
+
 	def __init__(self, name, n1, n2, n3, n4, val):
 		self.name = name
 		self.n1 = n1
@@ -152,14 +154,35 @@ class vcvs:
 		mna_G[unk[self.name][1]][unk[self.n3][1]] += -self.val
 		mna_G[unk[self.name][1]][unk[self.n4][1]] += self.val
 	
+class vccs:
+	
+	def __init__(self, name, n1, n2, n3, n4, val):
+		self.name = name
+		self.n1 = n1
+		self.n2 = n2
+		self.n3 = n3
+		self.n4 = n4
+		self.val = float(val)
+	
+	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
+		helper_mna(mna_G, self.val, unk[self.n1][1], 
+					unk[self.n2][1], unk[self.n3][1], unk[self.n4][1])
+
+class ccvs:
+	
+	def __init__(self, name, n1, n2, v0, val):
+		self.name = name
+		self.n1 = n1
+		self.n2 = n2
+		self.v0 = v0
+		self.val = val
+
+	def fill_nma(self, mna_G, mna_ind, unk, freq=None):
+		pass	
+
 class cccs:
 	pass
 
-class ccvs:
-	pass
-
-class vccs:
-	pass
 class xtraSpice:
 	
 	def __init__(self, netlist):
