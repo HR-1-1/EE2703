@@ -3,7 +3,7 @@
 #Author  : Harish R EE20B044
 #Date    : Feb 2 2022
 #Purpose : A circuit solver
-#Inputs  : A Netlist file
+#Inputs  : A dot Netlist file
 ########################################################
 
 import sys
@@ -11,7 +11,9 @@ import re
 import numpy as np
 import warnings
 
-from spice_part_1 import file_parser
+CIRCUIT = '.circuit'
+END = '.end'
+AC = '.ac'
 
 def helper_mna(x,m,n1,n2,v1,v2):
 
@@ -72,9 +74,46 @@ class ind_voltage_src:
 
 class xtraSpice:
 	
-	def __init__(self, ckt_def):
-		self.ckt_def = ckt_def
+	def __init__(self, netlist):
+		self.netlist = netlist
+	
+	def mode(self, opdir):
+		
+		if opdir.split('#')[0].strip().split()[0] == AC:
+			self.mode = 'ac'
+			self.freq = opdir.split('#')[0].strip().split()[-1]
+		else
+			pass
 
+	def file_parser():
+	
+		try:
+			with open(self.netlist) as f:
+				lines = f.readlines()
+				start = -1; end = -2
+
+				for line in lines:	# extracting circuit definition start and end lines
+
+					if CIRCUIT == line.split('#')[0].strip():
+						start = lines.index(line)
+					elif END == line.split('#')[0].strip():	
+						end = lines.index(line)
+						break		
+				
+				if start>=end or start*end<0:	# validating circuit block
+					print("Invalid circuit definition")
+					sys.exit(0)
+				
+				for line in lines[end:]:
+					if AC == line.split()[0]:
+						self.mode(line)
+				
+			self.ckt_def = lines[start+1:end]
+			
+		except IOError : # catch incorrect filename error
+			print('Invalid file')
+			sys.exit
+	
 	def element_extracter(self):
 
 		self.elements = []
@@ -143,8 +182,12 @@ class xtraSpice:
 				pass
 
 def main():
-	ckt_def = file_parser()
-	solver = xtraSpice(ckt_def)
+			
+	if len(sys.argv) != 2:
+		print('\nUsage: python3 %s <inputfile>' % sys.argv[0])
+		sys.exit()
+
+	solver = xtraSpice(sys.argv[1])
 	solver.solve()
 	solver.display()
 

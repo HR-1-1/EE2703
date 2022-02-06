@@ -12,7 +12,7 @@ import sys
 
 CIRCUIT = '.circuit'
 END = '.end'
-
+AC = '.ac'
 def netlist_analyzer(ckt_def):
 	
 	'''
@@ -73,15 +73,18 @@ def file_parser():
 					end = lines.index(line)
 					break		
 			
-			for line in lines:
-				if line.split('#')[0][0]=='.':
-					op_dir.append(line)
 		
 			if start>=end or start*end<0:	# validating circuit block
 				print("Invalid circuit definition")
 				sys.exit(0)
-		
-			return lines[start+1:end], op_dir
+			
+			opdir=[]
+			
+			for line in lines[end:]:
+				if AC == line.split('#')[0].strip():
+					opdir.append(line)
+			
+		return lines[start+1:end], opdir
 
 	except IOError : # catch incorrect filename error
 		print('Invalid file')
