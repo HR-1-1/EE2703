@@ -2,7 +2,7 @@
 #Title   : spice_part_2.py
 #Author  : Harish R EE20B044
 #Date    : Feb 2 2022
-#Purpose : A circuit solver
+#Purpose : Circuit solver
 #Inputs  : A dot Netlist file
 ########################################################
 
@@ -10,19 +10,24 @@ import sys
 import re
 import numpy as np
 import warnings
+from math import pi
 
 CIRCUIT = '.circuit'
 END = '.end'
 AC = '.ac'
 
+def P2R(A,phi):
+	return A * ( np.cos(phi) + np.sin(phi)*1j )   
+
 def helper_mna(x,m,n1,n2,v1,v2):
 
-	x[n1][v1] = m
-	x[n1][v2] = -m
-	x[n2][v1] = -m
-	x[n2][v2] = m
+	x[n1][v1] += m
+	x[n1][v2] += -m
+	x[n2][v1] += -m
+	x[n2][v2] += m
 
 class resistor:
+
 	def __new__(cls, name, n1, n2, val):
 		
 		if float(val)<=0:
@@ -41,51 +46,136 @@ class resistor:
 	
 		return instance
 	
-	def fill_mna(self, mna_G, mna_ind, unk):
+	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
 		helper_mna(mna_G, 1/self.val, unk[self.n1][1], 
 					unk[self.n2][1], unk[self.n1][1], unk[self.n2][1])
+
+class capacitor:
+
+	def __new__(cls, name, n1, n2, val):
+		
+		if float(val)<=0:
+			warnings.warn(" Value of Inductor {} is zero".format(name))
+			return None
+		
+		if n1==n2:
+			warnings.warn("Inductor {} is connected across the identitical nodes".format(name))
+			return None
+
+		instance = super().__new__(cls)
+		instance.name = name
+		instance.n1 = n1
+		instance.n2 = n2
+		instance.val = float(val)
 	
+		return instance
+	
+	def fill_mna(self, mna_G, mna_ind, unk, freq):
+		helper_mna(mna_G, 2j*pi*freq*self.val, unk[self.n1][1], 
+					unk[self.n2][1], unk[self.n1][1], unk[self.n2][1])
+
+class inductor:
+
+	def __new__(cls, name, n1, n2, val):
+		
+		if float(val)<=0:
+			warnings.warn(" Value of Inductor {} is zero".format(name))
+			return None
+		
+		if n1==n2:
+			warnings.warn("Inductor {} is connected across the identitical nodes".format(name))
+			return None
+
+		instance = super().__new__(cls)
+		instance.name = name
+		instance.n1 = n1
+		instance.n2 = n2
+		instance.val = float(val)
+	
+		return instance
+	
+	def fill_mna(self, mna_G, mna_ind, unk, freq):
+		helper_mna(mna_G, -1j/(2*pi*freq*self.val), unk[self.n1][1], 
+					unk[self.n2][1], unk[self.n1][1], unk[self.n2][1])
+
 class ind_current_src:
-	def __init__(self, name, n1, n2, val):
+	def __init__(self, name, n1, n2,mode,val,phase=None):
 		self.name = name
 		self.n1 = n1
-		self.n2 = n2
-		self.val = float(val)
+		self.n2 = n2	
+		self.mode = mode
+		if mode == 'dc':
+			self.val = float(val)
+		elif mode == 'ac':
+			self.val = P2R(float(val), float(phase))
+		else:
+			print("Enter a proper mode")
 
-	def fill_mna(self, mna_G, mna_ind, unk):
-		mna_ind[unk[self.n1][1]] = self.val
-		mna_ind[unk[self.n2][1]] = self.val
+	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
+		mna_ind[unk[self.n1][1]] += self.val
+		mna_ind[unk[self.n2][1]] += self.val
 
 class ind_voltage_src:
-	def __init__(self, name, n1, n2, val):
+	def __init__(self, name, n1, n2, mode, val, phase=None):
 		self.name = name
 		self.n1 = n1
 		self.n2 = n2
+		self.mode = mode
+		if mode == 'dc':
+			self.val = float(val)
+		elif mode == 'ac':
+			self.val = P2R(float(val), float(phase))
+		
+	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
+
+		mna_G[unk[self.n1][1]][unk[self.name][1]] += 1
+		mna_G[unk[self.n2][1]][unk[self.name][1]] += -1
+		mna_G[unk[self.name][1]][unk[self.n1][1]] += 1
+		mna_G[unk[self.name][1]][unk[self.n2][1]] += -1
+
+		mna_ind[unk[self.name][1]] += self.val
+
+class vcvs:
+	def __init__(self, name, n1, n2, n3, n4, val):
+		self.name = name
+		self.n1 = n1
+		self.n2 = n2
+		self.n3 = n3
+		self.n4 = n4
 		self.val = float(val)
 	
-	def fill_mna(self, mna_G, mna_ind, unk):
+	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
+		mna_G[unk[self.n1][1]][unk[self.name][1]] += 1
+		mna_G[unk[self.n2][1]][unk[self.name][1]] += -1
+		mna_G[unk[self.name][1]][unk[self.n1][1]] += 1
+		mna_G[unk[self.name][1]][unk[self.n2][1]] += -1
+		mna_G[unk[self.name][1]][unk[self.n3][1]] += -self.val
+		mna_G[unk[self.name][1]][unk[self.n4][1]] += self.val
+	
+class cccs:
+	pass
 
-		mna_G[unk[self.n1][1]][unk[self.name][1]] = 1
-		mna_G[unk[self.n2][1]][unk[self.name][1]] = -1
-		mna_G[unk[self.name][1]][unk[self.n1][1]] = 1
-		mna_G[unk[self.name][1]][unk[self.n2][1]] = -1
+class ccvs:
+	pass
 
-		mna_ind[unk[self.name][1]] = self.val
-
+class vccs:
+	pass
 class xtraSpice:
 	
 	def __init__(self, netlist):
 		self.netlist = netlist
+		self.mode = None
+		self.freq = None
 		self.file_parser()
 	
-	def mode(self, opdir):
+	def get_mode(self, opdir):
 		
 		if opdir.split('#')[0].strip().split()[0] == AC:
 			self.mode = 'ac'
-			self.freq = opdir.split('#')[0].strip().split()[-1]
+			self.freq = float(opdir.split('#')[0].strip().split()[-1])
 		else:
 			pass
-
+	
 	def file_parser(self):
 	
 		try:
@@ -107,7 +197,7 @@ class xtraSpice:
 				
 				for line in lines[end:]:
 					if AC == line.split()[0]:
-						self.mode(line)
+						self.get_mode(line)
 				
 			self.ckt_def = lines[start+1:end]
 			
@@ -118,16 +208,23 @@ class xtraSpice:
 	def element_extracter(self):
 
 		self.elements = []
-
+		
+		# elems is a dictionary of elements and classes
+		elems = {"R": resistor,
+			"L": inductor,
+			"C": capacitor,
+			"V": ind_voltage_src,
+			"I": ind_current_src,
+			"E": vcvs, 
+			"G": vccs,
+			"H": ccvs, 
+			"F": cccs}
+	
 		for line in self.ckt_def:
 			comp = line.split('#')[0].split()
-			if comp[0][0]=='R':
-				self.elements.append(resistor(*comp))
-			elif comp[0][0]=='I':
-				self.elements.append(ind_current_src(*comp))
-			elif comp[0][0]=='V':
-				self.elements.append(ind_voltage_src(*comp))
-			else :
+			try:
+				self.elements.append(elems[comp[0][0]](*comp))
+			except KeyError:
 				print("Kindly follow the naming convention for Elements")
 	
 	def get_nodes(self):
@@ -150,20 +247,25 @@ class xtraSpice:
 		for elem in self.elements:
 			if isinstance(elem, ind_voltage_src):
 				self.unk[elem.name] = ['VSCA',len(self.unk)]
-		
+			if isinstance(elem, vcvs):
+				self.unk[elem.name] = ['VSCA', len(self.unk)]
+
 		self.unk["GND"] = ['GND',len(self.unk)]
 
 	def mna_solver(self):
 		
-		self.mna_G = np.zeros((len(self.unk),len(self.unk)))
-		self.mna_ind = np.zeros(len(self.unk))
+		self.mna_G = np.zeros((len(self.unk),len(self.unk))).astype(complex)
+		self.mna_ind = np.zeros(len(self.unk)).astype(complex)
 
 		for elem in self.elements:
-			elem.fill_mna(self.mna_G, self.mna_ind, self.unk)
+			elem.fill_mna(self.mna_G, self.mna_ind, self.unk, self.freq)
 		
 		#print(mna_G, mna_ind)
 
-		self.mna_res = np.linalg.solve(self.mna_G[:-1,:-1], self.mna_ind[:-1])
+		try:
+			self.mna_res = np.linalg.solve(self.mna_G[:-1,:-1], self.mna_ind[:-1])
+		except np.linalg.LinAlgError as e:
+			print("Sorry! This ciruit raises the following error : {}".format(e))
 	
 	def solve(self):
 		self.element_extracter()
