@@ -72,12 +72,16 @@ def file_parser():
 				elif END == line.split('#')[0].strip():	
 					end = lines.index(line)
 					break		
+			
+			for line in lines:
+				if line.split('#')[0][0]=='.':
+					op_dir.append(line)
 		
 			if start>=end or start*end<0:	# validating circuit block
 				print("Invalid circuit definition")
 				sys.exit(0)
 		
-			return lines[start+1:end]
+			return lines[start+1:end], op_dir
 
 	except IOError : # catch incorrect filename error
 		print('Invalid file')
