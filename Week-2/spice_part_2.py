@@ -76,16 +76,17 @@ class xtraSpice:
 	
 	def __init__(self, netlist):
 		self.netlist = netlist
+		self.file_parser()
 	
 	def mode(self, opdir):
 		
 		if opdir.split('#')[0].strip().split()[0] == AC:
 			self.mode = 'ac'
 			self.freq = opdir.split('#')[0].strip().split()[-1]
-		else
+		else:
 			pass
 
-	def file_parser():
+	def file_parser(self):
 	
 		try:
 			with open(self.netlist) as f:
