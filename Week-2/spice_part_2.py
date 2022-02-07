@@ -26,6 +26,11 @@ def helper_mna(x,m,n1,n2,v1,v2):
 	x[n2][v1] += -m
 	x[n2][v2] += m
 
+def get_obj(name):
+	for elem in solver.elements:
+		if elem.name == name:
+			return elem
+
 class resistor:
 
 	def __new__(cls, name, n1, n2, val):
@@ -175,13 +180,43 @@ class ccvs:
 		self.n1 = n1
 		self.n2 = n2
 		self.v0 = v0
-		self.val = val
+		self.val = float(val)
 
-	def fill_nma(self, mna_G, mna_ind, unk, freq=None):
-		pass	
+	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
+		
+		self.v0 = get_obj(self.v0)
+		mna_G[unk[self.n1][1]][unk[self.name][1]] = 1
+		mna_G[unk[self.n2][1]][unk[self.name][1]] = -1
+		mna_G[unk[self.v0.n1][1]][unk[self.v0.name][1]] = 1
+		mna_G[unk[self.v0.n2][1]][unk[self.v0.name][1]] = -1
+
+		mna_G[unk[self.v0.name][1]][unk[self.v0.n1][1]] = 1
+		mna_G[unk[self.v0.name][1]][unk[self.v0.n2][1]] = -1
+
+		mna_G[unk[self.name][1]][unk[self.n1][1]] = 1
+		mna_G[unk[self.name][1]][unk[self.n2][1]]  = -1
+
+		mna_G[unk[self.name][1]][unk[self.v0.name][1]] = -self.val
 
 class cccs:
-	pass
+	
+	def __init__(self, name, n1, n2, v0, val):
+		self.name = name
+		self.n1 = n1
+		self.n2 = n2
+		self.v0 = v0
+		self.val = float(val)
+
+	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
+		
+		self.v0 = get_obj(self.v0)
+		mna_G[unk[self.n1][1]][unk[self.v0.name][1]] = self.val
+		mna_G[unk[self.n2][1]][unk[self.v0.name][1]] = -self.val
+		mna_G[unk[self.v0.n1][1]][unk[self.v0.name][1]] = 1
+		mna_G[unk[self.v0.n2][1]][unk[self.v0.name][1]] = -1
+
+		mna_G[unk[self.v0.name][1]][unk[self.v0.n1][1]] = 1
+		mna_G[unk[self.v0.name][1]][unk[self.v0.n2][1]] = -1
 
 class xtraSpice:
 	
@@ -247,9 +282,13 @@ class xtraSpice:
 			comp = line.split('#')[0].split()
 			try:
 				self.elements.append(elems[comp[0][0]](*comp))
+#			except Exception as e:
+#				print(line,e)
 			except KeyError:
 				print("Kindly follow the naming convention for Elements")
-	
+		
+#		print(self.elements)
+
 	def get_nodes(self):
 		
 		node_list = []
@@ -268,11 +307,9 @@ class xtraSpice:
 		self.unk = {y : ['NV',x] for x,y in enumerate(node_list)}
 			
 		for elem in self.elements:
-			if isinstance(elem, ind_voltage_src):
+			if isinstance(elem, (ind_voltage_src, vcvs, ccvs)):
 				self.unk[elem.name] = ['VSCA',len(self.unk)]
-			if isinstance(elem, vcvs):
-				self.unk[elem.name] = ['VSCA', len(self.unk)]
-
+			
 		self.unk["GND"] = ['GND',len(self.unk)]
 
 	def mna_solver(self):
@@ -307,14 +344,13 @@ class xtraSpice:
 			except Exception as e:
 				pass
 
-def main():
 			
-	if len(sys.argv) != 2:
-		print('\nUsage: python3 %s <inputfile>' % sys.argv[0])
-		sys.exit()
+if len(sys.argv) != 2:
+	print('\nUsage: python3 %s <inputfile>' % sys.argv[0])
+	sys.exit()
 
-	solver = xtraSpice(sys.argv[1])
-	solver.solve()
-	solver.display()
+solver = xtraSpice(sys.argv[1])
+solver.solve()
+solver.display()
 
-main()
+
