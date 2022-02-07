@@ -185,18 +185,18 @@ class ccvs:
 	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
 		
 		self.v0 = get_obj(self.v0)
-		mna_G[unk[self.n1][1]][unk[self.name][1]] = 1
-		mna_G[unk[self.n2][1]][unk[self.name][1]] = -1
-		mna_G[unk[self.v0.n1][1]][unk[self.v0.name][1]] = 1
-		mna_G[unk[self.v0.n2][1]][unk[self.v0.name][1]] = -1
+		mna_G[unk[self.n1][1]][unk[self.name][1]] += 1
+		mna_G[unk[self.n2][1]][unk[self.name][1]] += -1
+		mna_G[unk[self.v0.n1][1]][unk[self.v0.name][1]] += 1
+		mna_G[unk[self.v0.n2][1]][unk[self.v0.name][1]] += -1
 
-		mna_G[unk[self.v0.name][1]][unk[self.v0.n1][1]] = 1
-		mna_G[unk[self.v0.name][1]][unk[self.v0.n2][1]] = -1
+		mna_G[unk[self.v0.name][1]][unk[self.v0.n1][1]] += 1
+		mna_G[unk[self.v0.name][1]][unk[self.v0.n2][1]] += -1
 
-		mna_G[unk[self.name][1]][unk[self.n1][1]] = 1
-		mna_G[unk[self.name][1]][unk[self.n2][1]]  = -1
+		mna_G[unk[self.name][1]][unk[self.n1][1]] += 1
+		mna_G[unk[self.name][1]][unk[self.n2][1]]  += -1
 
-		mna_G[unk[self.name][1]][unk[self.v0.name][1]] = -self.val
+		mna_G[unk[self.name][1]][unk[self.v0.name][1]] += -self.val
 
 class cccs:
 	
@@ -210,13 +210,13 @@ class cccs:
 	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
 		
 		self.v0 = get_obj(self.v0)
-		mna_G[unk[self.n1][1]][unk[self.v0.name][1]] = self.val
-		mna_G[unk[self.n2][1]][unk[self.v0.name][1]] = -self.val
-		mna_G[unk[self.v0.n1][1]][unk[self.v0.name][1]] = 1
-		mna_G[unk[self.v0.n2][1]][unk[self.v0.name][1]] = -1
+		mna_G[unk[self.n1][1]][unk[self.v0.name][1]] += self.val
+		mna_G[unk[self.n2][1]][unk[self.v0.name][1]] += -self.val
+		mna_G[unk[self.v0.n1][1]][unk[self.v0.name][1]] += 1
+		mna_G[unk[self.v0.n2][1]][unk[self.v0.name][1]] += -1
 
-		mna_G[unk[self.v0.name][1]][unk[self.v0.n1][1]] = 1
-		mna_G[unk[self.v0.name][1]][unk[self.v0.n2][1]] = -1
+		mna_G[unk[self.v0.name][1]][unk[self.v0.n1][1]] += 1
+		mna_G[unk[self.v0.name][1]][unk[self.v0.n2][1]] += -1
 
 class xtraSpice:
 	
