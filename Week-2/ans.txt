@@ -1,0 +1,64 @@
+Running test case /home/harish/acads/EE2703/Week-2/test_suite/ckt10.netlist
+Value of Node Voltage, N4 is 0.00E+00+0.00E+00j V
+Value of Node Voltage, N1 is 5.00E+01+0.00E+00j V
+Value of Node Voltage, N3 is -5.00E+01+0.00E+00j V
+Value of Voltage Source current, V1 is -5.00E+00+0.00E+00j A
+-------------------
+Running test case /home/harish/acads/EE2703/Week-2/test_suite/ckt1.netlist
+Value of Node Voltage, 3 is 0.00E+00+0.00E+00j V
+Value of Node Voltage, 4 is -5.00E+00-0.00E+00j V
+Value of Node Voltage, 2 is 0.00E+00+0.00E+00j V
+Value of Node Voltage, 1 is 0.00E+00+0.00E+00j V
+Value of Voltage Source current, V1 is -5.00E-04-0.00E+00j A
+-------------------
+Running test case /home/harish/acads/EE2703/Week-2/test_suite/ckt3.netlist
+Value of Node Voltage, 1 is -1.00E+01-0.00E+00j V
+Value of Node Voltage, 4 is -1.40E+00+0.00E+00j V
+Value of Node Voltage, 5 is -9.36E-01+0.00E+00j V
+Value of Node Voltage, 2 is -5.03E+00+0.00E+00j V
+Value of Node Voltage, 3 is -2.57E+00+0.00E+00j V
+Value of Voltage Source current, V1 is -4.97E-03-0.00E+00j A
+-------------------
+Running test case /home/harish/acads/EE2703/Week-2/test_suite/ckt4.netlist
+Value of Node Voltage, 3 is -3.70E+00+0.00E+00j V
+Value of Node Voltage, 2 is -5.56E+00+0.00E+00j V
+Value of Node Voltage, 1 is -1.00E+01-0.00E+00j V
+Value of Voltage Source current, V1 is -2.22E+00-0.00E+00j A
+-------------------
+Running test case /home/harish/acads/EE2703/Week-2/test_suite/ckt5.netlist
+Value of Node Voltage, 1 is -1.00E+01-0.00E+00j V
+Value of Voltage Source current, V1 is -1.00E+00-0.00E+00j A
+-------------------
+Running test case /home/harish/acads/EE2703/Week-2/test_suite/ckt6.netlist
+Value of Node Voltage, n3 is -2.50E+00-0.00E+00j V
+Value of Node Voltage, n2 is -9.38E-11-1.53E-05j V
+Value of Node Voltage, n1 is -9.62E-11-1.57E-05j V
+Value of Voltage Source current, V1 is -2.50E-03+1.53E-08j A
+-------------------
+Running test case /home/harish/acads/EE2703/Week-2/test_suite/ckt7.netlist
+Value of Node Voltage, n1 is 7.11E-05+3.57E-05j V
+Value of Node Voltage, n2 is 1.42E-04+7.13E-05j V
+Value of Voltage Source current, E1 is 1.42E-05+7.13E-06j A
+-------------------
+Running test case /home/harish/acads/EE2703/Week-2/test_suite/ckt8.netlist
+Value of Node Voltage, n2 is 1.00E+02+0.00E+00j V
+Value of Node Voltage, n1 is -5.00E+00-0.00E+00j V
+Value of Voltage Source current, V1 is 0.00E+00-0.00E+00j A
+-------------------
+Running test case /home/harish/acads/EE2703/Week-2/test_suite/ckt9.netlist
+Value of Node Voltage, N006 is 8.50E+02+0.00E+00j V
+Value of Node Voltage, N008 is -1.00E+02+0.00E+00j V
+Value of Node Voltage, N009 is 6.67E+01+0.00E+00j V
+Value of Node Voltage, N003 is -1.33E+02+0.00E+00j V
+Value of Node Voltage, N010 is 6.35E+01+0.00E+00j V
+Value of Node Voltage, N004 is 1.60E+02+0.00E+00j V
+Value of Node Voltage, N005 is 2.00E+01+0.00E+00j V
+Value of Node Voltage, N001 is -4.44E+00+0.00E+00j V
+Value of Node Voltage, N007 is 6.67E+00+0.00E+00j V
+Value of Node Voltage, N002 is 4.20E+04+0.00E+00j V
+Value of Node Voltage, N011 is 6.67E+00+0.00E+00j V
+Value of Voltage Source current, V1 is 9.56E+00+0.00E+00j A
+Value of Voltage Source current, E1 is -6.35E-01-0.00E+00j A
+Value of Voltage Source current, V2 is -4.44E-01-0.00E+00j A
+Value of Voltage Source current, H1 is 1.48E-01+0.00E+00j A
+-------------------
