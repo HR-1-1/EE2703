@@ -216,7 +216,6 @@ class xtraSpice: # netlist solver class
 	def element_extracter(self): # creates objects for elements and stores them in a list
 
 		self.elements = []
-		
 		# elems is a dictionary of elements and classes
 		elems = {"R": passive,
 			"L": passive,
@@ -232,7 +231,10 @@ class xtraSpice: # netlist solver class
 			comp = line.split('#')[0].split()
 			 
 			try:
-				self.elements.append(elems[comp[0][0]](*comp))
+				if comp[0] not in [x.name for x in self.elements]: 
+					self.elements.append(elems[comp[0][0]](*comp))
+				else:
+					sys.exit("Duplicate instance of component {}!".format(comp[0]))
 			except Exception as e:
 				if e is KeyError:
 					print("Kindly follow the naming convention for Elements")
