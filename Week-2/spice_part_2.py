@@ -113,12 +113,12 @@ class ind_current_src:
 		if mode == 'dc':
 			self.val = float(val)
 		elif mode == 'ac':
-			self.val = P2R(float(val), float(phase))
+			self.val = P2R(float(val)/2, float(phase))
 		else:
 			print("Enter a proper mode")
 
 	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
-		mna_ind[unk[self.n1][1]] += self.val
+		mna_ind[unk[self.n1][1]] += -self.val
 		mna_ind[unk[self.n2][1]] += self.val
 
 class ind_voltage_src:
@@ -131,9 +131,10 @@ class ind_voltage_src:
 		if mode == 'dc':
 			self.val = float(val)
 		elif mode == 'ac':
-			self.val = P2R(float(val), float(phase))
+			self.val = P2R(float(val)/2, float(phase))
 		
 	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
+		
 		mna_G[unk[self.n1][1]][unk[self.name][1]] += 1
 		mna_G[unk[self.n2][1]][unk[self.name][1]] += -1
 		mna_G[unk[self.name][1]][unk[self.n1][1]] += 1
@@ -184,19 +185,19 @@ class ccvs:
 
 	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
 		
-		self.v0 = get_obj(self.v0)
+		v = get_obj(self.v0)
 		mna_G[unk[self.n1][1]][unk[self.name][1]] += 1
 		mna_G[unk[self.n2][1]][unk[self.name][1]] += -1
-		mna_G[unk[self.v0.n1][1]][unk[self.v0.name][1]] += 1
-		mna_G[unk[self.v0.n2][1]][unk[self.v0.name][1]] += -1
+		#mna_G[unk[v.n1][1]][unk[v.name][1]] += 1
+		#mna_G[unk[v.n2][1]][unk[v.name][1]] += -1
 
-		mna_G[unk[self.v0.name][1]][unk[self.v0.n1][1]] += 1
-		mna_G[unk[self.v0.name][1]][unk[self.v0.n2][1]] += -1
+		#mna_G[unk[v.name][1]][unk[v.n1][1]] += 1
+		#mna_G[unk[v.name][1]][unk[v.n2][1]] += -1
 
 		mna_G[unk[self.name][1]][unk[self.n1][1]] += 1
 		mna_G[unk[self.name][1]][unk[self.n2][1]]  += -1
 
-		mna_G[unk[self.name][1]][unk[self.v0.name][1]] += -self.val
+		mna_G[unk[self.name][1]][unk[v.name][1]] += -self.val
 
 class cccs:
 	
@@ -209,14 +210,15 @@ class cccs:
 
 	def fill_mna(self, mna_G, mna_ind, unk, freq=None):
 		
-		self.v0 = get_obj(self.v0)
-		mna_G[unk[self.n1][1]][unk[self.v0.name][1]] += self.val
-		mna_G[unk[self.n2][1]][unk[self.v0.name][1]] += -self.val
-		mna_G[unk[self.v0.n1][1]][unk[self.v0.name][1]] += 1
-		mna_G[unk[self.v0.n2][1]][unk[self.v0.name][1]] += -1
+		v = get_obj(self.v0)
+		#print(v.name)
+		mna_G[unk[self.n1][1]][unk[v.name][1]] += self.val
+		mna_G[unk[self.n2][1]][unk[v.name][1]] += -self.val
+		#mna_G[unk[v.n1][1]][unk[v.name][1]] += 1
+		#mna_G[unk[v.n2][1]][unk[v.name][1]] += -1
 
-		mna_G[unk[self.v0.name][1]][unk[self.v0.n1][1]] += 1
-		mna_G[unk[self.v0.name][1]][unk[self.v0.n2][1]] += -1
+		#mna_G[unk[v.name][1]][unk[v.n1][1]] += 1
+		#mna_G[unk[v.name][1]][unk[v.n2][1]] += -1
 
 class xtraSpice:
 	
@@ -280,15 +282,15 @@ class xtraSpice:
 	
 		for line in self.ckt_def:
 			comp = line.split('#')[0].split()
+			 
 			try:
 				self.elements.append(elems[comp[0][0]](*comp))
-#			except Exception as e:
-#				print(line,e)
-			except KeyError:
-				print("Kindly follow the naming convention for Elements")
+			except Exception as e:
+				#print(line,e)
+				pass
+#			except KeyError:
+#				print("Kindly follow the naming convention for Elements")
 		
-#		print(self.elements)
-
 	def get_nodes(self):
 		
 		node_list = []
@@ -332,12 +334,16 @@ class xtraSpice:
 		self.get_nodes()
 		self.mna_solver()
 	
-	def display(self):
+	def display(self, debug =False):
 	
 		abbrev = {'NV':"Node Voltage",
-				'VSCA' : "Voltage Source current",
-				'CCA' : "Controlling current"}
+				'VSCA' : "Voltage Source current"}
 		
+		if debug==True:
+			print(self.mna_G)
+			print(self.mna_ind)
+			print(self.unk)
+
 		for un,idx in self.unk.items():
 			try:
 				print("Value of {}, {} is {} {}".format(abbrev[idx[0]],un,self.mna_res[idx[1]],idx[0][-1]))
