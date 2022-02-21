@@ -218,14 +218,14 @@ class xtraSpice: # netlist solver class
 		self.elements = []
 		# elems is a dictionary of elements and classes
 		elems = {"R": passive,
-			"L": passive,
-			"C": passive,
-			"V": ind_voltage_src,
-			"I": ind_current_src,
-			"E": vcvs, 
-			"G": vccs,
-			"H": ccvs, 
-			"F": cccs}
+				"L": passive,
+				"C": passive,
+				"V": ind_voltage_src,
+				"I": ind_current_src,
+				"E": vcvs, 
+				"G": vccs,
+				"H": ccvs, 
+				"F": cccs}
 	
 		for line in self.ckt_def:
 			comp = line.split('#')[0].split()
