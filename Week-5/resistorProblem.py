@@ -19,12 +19,45 @@ from pylab import *
 import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.pyplot as plt
 
-def debug(name, value):
+PLOTS = './plots/'
+
+def debug(var):
 	global args
 	if args.debug:
-		print("The value of " + name)
-		print(value)
-		print('*'*5)
+		for name, value in var.items():
+			print("The value of " + name)
+			print(value)
+			print('*'*5)
+
+def laplaceSolver(phi, ii, Niter):
+	error = []
+	for n in range(Niter):
+		oldphi = phi.copy()
+
+		# Update Potential
+		phi[1:-1, 1:-1] = 0.25*(phi[1:-1, 0:-2]+phi[1:-1, 2:]+phi[0:-2, 1:-1]+phi[2:, 1:-1])
+
+		# Boundary Conditions
+		phi[1:-1, 0] = phi[1:-1, 1]
+		phi[1:-1, -1] = phi[1:-1, -2]
+		phi[0, :] = phi[1, :]
+
+		phi[ii] = 1.0
+
+		error.append(np.abs(phi-oldphi).max())
+	
+	return np.array(error)
+
+def cErr(N, A, B):
+	return -(A/B)*np.exp(B*(N+0.5))
+
+def getErrorTol(bestFit, Niter, error_tol):
+	cErr = []
+	for n in range(0, Niter):
+		cErr.append(cErr(n, np.exp(bestFit[0]), bestFit[1]))
+		if(cErr[n-1] <= error_tol):
+			return cErr[n-1], n
+	return cErr[-1], Niter
 
 def main():
 	parser = argparse.ArgumentParser(description="Program to calculate current flow distribution in a resistor", epilog="Feel free to checkout the source code")
@@ -38,24 +71,91 @@ def main():
 	args = parser.parse_args()
 	
 	phi = np.zeros((args.width, args.length))
-	xx, yy = meshgrid(np.linspace(-0.5, 0.5, args.length), np.flip(np.linspace(-0.5, 0.5, args.width)))
+	xunit = np.linspace(-0.5, 0.5, args.length)
+	yunit = np.flip(np.linspace(-0.5, 0.5, args.width))
+	xx, yy = meshgrid(xunit, yunit)
 	ii = np.where(xx*xx + yy*yy <= 1.05*(args.radius**2/(args.length*args.width)))
 	phi[ii] = 1.0
 	
-	debug("xx", xx)
-	debug("yy", yy)
-	debug("ii", ii)
-	debug("phi", phi)
+	debug({"xx":xx,"yy":yy,"ii":ii[0],"phi":phi})
 
-	fig, ax = plt.subplots(figsize =(8,8))
+	fig1, ax = plt.subplots(figsize =(8,8))
 	cont = ax.contour(xx, yy, phi, 20)
-	ax.scatter(ii[0], yy[ii[1]][0], 'ro')
-	ax.set_title('Contour Plot of potential')
-	ax.set_xlabel('x axis')
-	ax.set_ylabel('y axis')
-
-	plt.show()
+	ax.scatter(xunit[ii[0]], yunit[ii[1]], c='r', label='1 V')
+	ax.set_title('Contour Plot of potential function $\phi$')
+	ax.set_xlabel(r'X axis $\longrightarrow$')
+	ax.set_ylabel(r'Y axis $\longrightarrow$')
+	ax.legend()
+	ax.grid(True)
+	fig1.savefig(PLOTS + "Figure1.png")
 	
+	error = laplaceSolver(phi, ii, args.iter)
+
+	fig2, ax = plt.subplots(figsize =(8,8))
+	ax.semilogy(np.arange(args.iter), error)
+	ax.set_title('Semilog plot of error')
+	ax.set_xlabel(r'Number of iteration$\longrightarrow$')
+	ax.set_ylabel(r'Error$\longrightarrow$')
+	ax.grid(True)
+	fig2.savefig(PLOTS + "Figure2.png")
+	
+	Niter = args.iter
+
+	bestFit = np.polyfit(np.arange(Niter), np.log(error), 1)
+	bestFit500 = np.polyfit(np.arange(500, Niter), np.log(error[500:]), 1)
+	
+	bestFitValues = np.arange(Niter)*bestFit[0] + bestFit[1]
+	bestFit500Values = np.arange(500, Niter)*bestFit500[0] + bestFit500[1]
+	
+	fig3, ax = plt.subplots(figsize =(8,8))
+	ax.semilogy(np.arange(Niter)[::50], np.exp(bestFitValues[::50]), 'ro', label='Entire curve Linear Fit')
+	ax.semilogy(np.arange(500, Niter)[::50], np.exp(bestFit500Values[::50]), 'gx', label='Linear Fit after 500')
+	ax.semilogy(np.arange(Niter), error, 'b', label='Original Error')
+	ax.set_title('Linear Fit Estimate of Error')
+	ax.set_xlabel(r'Number of iteration$\longrightarrow$')
+	ax.set_ylabel(r'Error Estimates$\longrightarrow$')
+	ax.legend()
+	ax.grid(True)
+	fig3.savefig(PLOTS + "Figure3.png")
 
 
+	#cErr, end = getErrorTol(bestFit, Niter, 1e-5)
+	#print(end, cErr)
+
+	fig4 = plt.figure(4)
+	ax = p3.Axes3D(fig4)
+	ax.set_title('The 3-D surface plot of $\phi$')
+	surfacePlot = ax.plot_surface(xx, yy, phi, rstride=1, cstride=1, cmap=cm.jet)
+	cax = fig4.add_axes([1, 0, 0.1, 1])
+	ax.set_xlabel('$x$')
+	ax.set_ylabel('$y$')
+	ax.set_zlabel('$z$')
+	fig4.colorbar(surfacePlot, cax=cax, orientation='vertical')
+	fig4.savefig(PLOTS +'Figure4.png')
+
+
+	fig5, ax = plt.subplots(figsize=(8,8))
+	ax.contourf(xx, yy, phi, cmap=cm.jet)
+	ax.set_title('Updated Contour Plot of potential function $\phi$')
+	ax.set_xlabel(r'X axis $\longrightarrow$')
+	ax.set_ylabel(r'Y axis $\longrightarrow$')
+	ax.grid(True)
+	fig5.savefig(PLOTS + "Figure5.png")
+
+	Jx = np.zeros_like(phi)
+	Jy = np.zeros_like(phi)
+
+	Jx[1:-1, 1:-1] = (phi[1:-1, 0:-2] - phi[1:-1, 2:])*0.5
+	Jy[1:-1, 1:-1] = (phi[2:, 1:-1] - phi[0:-2, 1:-1])*0.5
+
+	fig6, ax = plt.subplots(figsize=(8,8))
+	ax.scatter(xunit[ii[0]], yunit[ii[1]], color='r', s=10, label='$V = 1V$ region')
+	ax.quiver(xx, yy, Jx, Jy)
+	ax.set_title('Vector Plot of current')
+	ax.set_xlabel(r'X axis $\longrightarrow$')
+	ax.set_ylabel(r'Y axis $\longrightarrow$')
+	ax.legend()
+	ax.grid(True)
+	fig6.savefig(PLOTS + "Figure6.png")
+	
 main()
