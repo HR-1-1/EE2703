@@ -1,0 +1,70 @@
+"""
+Title			: EE20B044.py
+Author			: Harish R EE20B044
+Created			: May 12 2022
+Last Modified	: May 12 2022
+Purpose			: Find antenna currents in a half-wave dipole antenna
+Inputs			: (:
+"""
+
+import argparse
+from pylab import *
+import mpl_toolkits.mplot3d.axes3d as p3
+import matplotlib.pyplot as plt
+
+PLOTS = './plots/'
+
+parameters = {'axes.labelsize': 10, 
+              'axes.titlesize': 12, 
+              'legend.fontsize': 8,  
+             'mathtext.fontset':'cm',
+             'figure.figsize': (10,15)} 
+
+def debug(var):
+    global args
+    if args.debug:
+        for name, value in var.items():
+            print("The value of " + name)
+            print(value)
+            print('*'*5)
+
+"""
+	Comments on the Antenna :
+		Antenna is an array with indices 0 to 2N (2N+1 elems)
+		Point N is the feed of the array
+"""
+
+l=0.5 #Quarter Wavelength in meters
+c=2.9979e8 #Speed of light in m/s
+mu0=4e-7*np.pi #Permeability of free space
+
+
+def main():
+	parser = argparse.ArgumentParser(description="Program to calculate antenna currents in a half-wave dipole antenna", epilog="Feel free to checkout the source code")
+	parser.add_argument('-n', '--num', nargs='?', type=int, help="Number of section in each half section of antenna", default=4)
+	parser.add_argument('-i', '--current', nargs='?', type=float, help="Current injected into the antenna", default=1.0)
+	parser.add_argument('-r', '--radius', nargs='?',  type=float, help="Radius of the wire", default=0.01)
+	parser.add_argument('-d', '--debug', help="Better debugging in code", action="store_true")
+		
+	global args 
+	args = parser.parse_args()
+	
+	N = args.num
+	Im = args.current
+	a = args.radius
+
+	lamda = l*4.0 #Wavelength in meters
+	f = c/lamda #Frequency in Hz
+	dz = l/N #Spacing of current samples
+
+	z = np.linspace(-N*dz,N*dz,int(2*N+1)) #Points in antenna
+	u = np.delete(z,N)[1:-1] #Locations of Unknown currents
+	I = np.zeros(2*N+1) #Current vector corresponding to z
+	I[np.where(z==0)] = Im
+	I[np.where(abs(z)==N*dz)] = 0
+	J = np.zeros(2*N-2) #Current vector corresponding to u
+
+	
+	debug({"z vector":z, "I":I, "J",J})
+
+main()
