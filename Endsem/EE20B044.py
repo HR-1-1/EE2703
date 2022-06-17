@@ -1,17 +1,18 @@
 """
-Title		: EE20B044.py
-Author		: Harish R EE20B044
-Created	: May 12 2022
+Title			: EE20B044.py
+Author			: Harish R EE20B044
+Created			: May 12 2022
 Last Modified	: May 12 2022
-Purpose	: Find antenna currents in a half-wave dipole antenna
-Inputs		: Kindly look at python3 <file-name.py> --help 
+Purpose			: Find antenna currents in a half-wave dipole antenna
+Inputs			: Kindly look at python3 <file-name.py> --help 
 """
+
 
 import argparse
 from pylab import *
 import matplotlib.pyplot as plt
 
-PLOTS = './plots/'
+PLOTS = './'
 
 parameters = {'axes.labelsize': 10, 
               'axes.titlesize': 12, 
@@ -124,5 +125,9 @@ def main():
 	
 	if(args.plot):
 		plt.show()
-	print(np.square(I-I_true).mean(0))
+	
+	print("The RMSE Error in the estimation is {}".format(np.square(I-I_true).mean(0).round(2)))
+
+	if(not args.plot and not args.debug):
+		print("For user interaction, Kindly run : python3 EE20B044.py --help")
 main()

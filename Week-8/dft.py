@@ -47,6 +47,9 @@ def fft_acc(N):
 	return np.abs(x-nf.ifft(nf.fft(x))).max()
 
 def calc_fft(xn, xp, N, f, thr, xlim, title, name, fft=True):
+	"""
+	A parametric function to calculate fft given the parameters
+	"""
 	t = np.linspace(xn, xp, N+1)[:-1]
 	w = (N/(xp-xn))*np.linspace(-np.pi, np.pi, N+1)[:-1]
 
@@ -78,7 +81,11 @@ def calc_fft(xn, xp, N, f, thr, xlim, title, name, fft=True):
 	fig.savefig(PATH+name)
 
 def estim_fft(fn = gs, true_fn = gs_true, tol=1e-6, N=128):
-
+	"""
+	Function to estimate the best sampling frequency 
+	for an infinte bandwidth function 
+	using Error-Tolerance method
+	"""
 	T = 2*np.pi
 	Y_o = 0
 	err = tol+10
@@ -99,15 +106,15 @@ def estim_fft(fn = gs, true_fn = gs_true, tol=1e-6, N=128):
 
 def main():
 	
-	print("FFT Max accuracy {}".format(fft_acc(128)))
+	print("FFT Max accuracy {}".format(fft_acc(128))) # Calculate max accuracy of fft implementation
 	calc_fft(0, 2*np.pi, 128, f1, 1e-3, 10, '$\sin(5t)$', 'Fig1.png') 
 	calc_fft(-4*np.pi, 4*np.pi, 512, f2, 1e-3, 15, '$(1+0.1\cos(t))\cos(10t)$', 'Fig2.png')
 	calc_fft(-4*np.pi, 4*np.pi, 512, f3, 1e-3, 15, '$sin^3(t)$', 'Fig3.png')
 	calc_fft(-4*np.pi, 4*np.pi, 512, f4, 1e-3, 15, '$cos^3(t)$',  'Fig4.png')
 	calc_fft(-4*np.pi, 4*np.pi, 512, f5, 1e-3, 30, '$cos(20t + 5cos(t))$', 'Fig5.png')
 	
-	err, N, T = estim_fft()
-	print(err, N, T/np.pi)
+	err, N, T = estim_fft() #Estimate best sampling frequency and frequency spacing for Gaussian
+	print(err, N, T/np.pi) 
 	calc_fft(-T/2, T/2, N, gs, 1e-3, 5, 'Gaussian - Calculated', 'Fig6.png')
 	calc_fft(-T/2, T/2, N, gs_true, 1e-3, 5, 'Gaussian - True Plot', 'Fig7.png', fft=False)
 
